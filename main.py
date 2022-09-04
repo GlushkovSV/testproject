@@ -3,7 +3,7 @@ import math
 import pyqtgraph as pg
 from PyQt5 import QtWidgets, QtSql
 from pyqtgraph import PlotWidget
-from myform import Ui_MainWindow  # импорт нашего сгенерированного файла
+from myform import Ui_MainWindow
 
 
 class calculations():
@@ -21,7 +21,7 @@ class calculations():
         self.Gas_Mass = self.Start_SC_Mass * (
                 1 - math.exp((-self.Delta_velocity) / self.Gas_Flow_Speed)
         )
-        self.Engines_Thrust = (self.Gas_Flow_Speed * self.Gas_Mass) / (self.Fly_Time)
+        self.Engines_Thrust = (self.Gas_Flow_Speed * self.Gas_Mass) / self.Fly_Time
         self.Engines_Power = (self.Engines_Thrust * self.Gas_Flow_Speed) / (2 * self.EFFICIENCY)
         self.Construct_Mass = self.Realitive_Construct_Mass * self.Start_SC_Mass
         self.Engines_Mass = self.Engine_Specific_Mass * self.Engines_Thrust
@@ -33,7 +33,7 @@ class calculations():
                              - self.SSS_Mass
                              - self.Engines_Mass
                              - self.Electro_Mass)
-        foo = (self.Gas_Mass) / (3 * math.pi)
+        foo = self.Gas_Mass / (3 * math.pi)
         self.Tank_Radius = 100 * round(pow(foo, 1 / 3))
         self.Tank_CTR = round(self.Tank_Radius * 1.5)
         self.Body_lenght = round(500 * pow(self.Construct_Mass, 1 / 3))
@@ -88,30 +88,13 @@ calcCore = calculations()
 
 
 class mywindow(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, model):
         super(mywindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.load_data()
+        self.ui.tableView.setModel(model)
         self.ui.pushButton.clicked.connect(calcCore.calc_master)
         self.ui.pushButton_2.clicked.connect(self.MSG)
-
-    def msg_err(self):
-        messg = QtWidgets.QMessageBox()
-        messg.setWindowTitle("Ошибка открытия Базы Данных")
-        messg.setText(str(self.db.lastError))
-        x = messg.exec_()
-
-    def load_data(self):
-        self.db = QtSql.QSqlDatabase.addDatabase("QODBC")
-        self.db.setDatabaseName(
-            "DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};FIL={MS Access};DSN='';DBQ=./engine.mdb")
-        if self.db.open() == False:
-            self.msg_err()
-        self.model = QtSql.QSqlTableModel(self, self.db)
-        self.model.setTable("engine")
-        self.model.select()
-        self.ui.tableView.setModel(self.model)
 
     def MSG(self):
         messg = QtWidgets.QMessageBox()
@@ -120,8 +103,29 @@ class mywindow(QtWidgets.QMainWindow):
         x = messg.exec_()
 
 
-app = QtWidgets.QApplication([])
-application = mywindow()
-application.show()
+def main():
+    app = QtWidgets.QApplication([])
+    db = QtSql.QSqlDatabase.addDatabase("QODBC")
+    db.setDatabaseName(
+        "DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};FIL={MS Access};DSN='';DBQ=./engine.mdb")
+    if not db.open():
+        print('error db open')
+        messg = QtWidgets.QMessageBox()
+        messg.setWindowTitle("Ошибка открытия Базы Данных")
+        messg.setText(str(db.lastError))
+        x = messg.exec_()
+        sys.exit(-1)
+    model = QtSql.QSqlTableModel()
+    model.setTable("engine")
+    model.select()
 
-sys.exit(app.exec())
+    application = mywindow(model)
+    application.show()
+    sys.exit(app.exec())
+
+
+if __name__ == '__main__':
+    main()
+
+
+

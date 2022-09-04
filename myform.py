@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from pyqtgraph import PlotWidget
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -335,4 +335,4 @@ class Ui_MainWindow(object):
         self.pushButton_2.setText(_translate("MainWindow", "О программе"))
         self.label_31.setText(_translate("MainWindow", "Зависимость наклонения орбиты (град) от времени (сут)"))
         self.label_32.setText(_translate("MainWindow", "Зависимость радиуса орбиты (км) от времени (сут)"))
-from pyqtgraph import PlotWidget
+
