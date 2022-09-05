@@ -6,85 +6,67 @@ from pyqtgraph import PlotWidget
 from myform import Ui_MainWindow
 
 
-class calculations():
+def theor_calc(param):
     Gravitation_Param = 398_600_000_000_000
 
-    def theor_calc(self):
-        self.Start_Orbit_Radius = (6371 + self.Start_Orbit_Height) * 1000
-        self.Finnaly_Orbit_Radius = (6371 + self.Finally_Orbit_Height) * 1000
-        self.Initial_Speed = math.sqrt(self.Gravitation_Param / self.Start_Orbit_Radius)
-        self.Delta_velocity = self.Initial_Speed * math.sqrt(
-            1 - 2 * math.sqrt(self.Start_Orbit_Radius / self.Finnaly_Orbit_Radius) *
-            math.cos((math.pi / 2) * (self.Finally_Orbit_Inclination - self.Start_Orbit_Inclination)) +
-            (self.Start_Orbit_Radius / self.Finnaly_Orbit_Radius)
-        )
-        self.Gas_Mass = self.Start_SC_Mass * (
-                1 - math.exp((-self.Delta_velocity) / self.Gas_Flow_Speed)
-        )
-        self.Engines_Thrust = (self.Gas_Flow_Speed * self.Gas_Mass) / self.Fly_Time
-        self.Engines_Power = (self.Engines_Thrust * self.Gas_Flow_Speed) / (2 * self.EFFICIENCY)
-        self.Construct_Mass = self.Realitive_Construct_Mass * self.Start_SC_Mass
-        self.Engines_Mass = self.Engine_Specific_Mass * self.Engines_Thrust
-        self.Electro_Mass = self.Electro_Specific_Mass * self.Engines_Power
-        self.SSS_Mass = self.SSS_Realitive_Mass * self.Gas_Mass
-        self.Payload_Mass = (self.Start_SC_Mass
-                             - self.Gas_Mass
-                             - self.Construct_Mass
-                             - self.SSS_Mass
-                             - self.Engines_Mass
-                             - self.Electro_Mass)
-        foo = self.Gas_Mass / (3 * math.pi)
-        self.Tank_Radius = 100 * round(pow(foo, 1 / 3))
-        self.Tank_CTR = round(self.Tank_Radius * 1.5)
-        self.Body_lenght = round(500 * pow(self.Construct_Mass, 1 / 3))
-        self.SP_Square = 0.5 * self.Engines_Power / (1.3 * 0.29 * 0.866)
-        self.Payload_R = round(math.sqrt(self.Payload_Mass / (0.02 * 1.5 * math.pi)))
-        self.EnginesCount = round(self.Engines_Thrust)
+    Fly_Time = param['Fly_Time']
+    Start_Orbit_Height = param['Start_Orbit_Height']
+    Start_Orbit_Inclination = param['Start_Orbit_Inclination']
+    Finally_Orbit_Height = param['Finally_Orbit_Height']
+    Finally_Orbit_Inclination = param['Finally_Orbit_Inclination']
+    Start_SC_Mass = param['Start_SC_Mass']
+    Realitive_Construct_Mass = param['Realitive_Construct_Mass']
+    SSS_Realitive_Mass = param['SSS_Realitive_Mass']
+    Gas_Flow_Speed = param['Gas_Flow_Speed']
+    Engine_Specific_Mass = param['Engine_Specific_Mass']
+    Electro_Specific_Mass = param['Electro_Specific_Mass']
+    EFFICIENCY = param['EFFICIENCY'] 
 
-    def calc_master(self):
-        self.Fly_Time = float(application.ui.lineEdit.text()) * 86400
-        self.Start_Orbit_Height = float(application.ui.lineEdit_4.text())
-        self.Start_Orbit_Inclination = float(application.ui.lineEdit_6.text()) * math.pi / 180
-        self.Finally_Orbit_Height = float(application.ui.lineEdit_5.text())
-        self.Finally_Orbit_Inclination = float(application.ui.lineEdit_7.text()) * math.pi / 180
-        self.Start_SC_Mass = float(application.ui.lineEdit_2.text())
-        self.Realitive_Construct_Mass = float(application.ui.lineEdit_12.text())
-        self.SSS_Realitive_Mass = float(application.ui.lineEdit_11.text())
-        self.Gas_Flow_Speed = float(application.ui.lineEdit_8.text())
-        self.Engine_Specific_Mass = float(application.ui.lineEdit_9.text())
-        self.Electro_Specific_Mass = float(application.ui.lineEdit_10.text())
-        self.EFFICIENCY = float(application.ui.lineEdit_3.text())
-        self.EFFICIENCY *= 0.01
+    Start_Orbit_Radius = (6371 + Start_Orbit_Height) * 1000
+    Finnaly_Orbit_Radius = (6371 + Finally_Orbit_Height) * 1000
+    Initial_Speed = math.sqrt(Gravitation_Param / Start_Orbit_Radius)
+    Delta_velocity = Initial_Speed * math.sqrt(
+        1 - 2 * math.sqrt(Start_Orbit_Radius / Finnaly_Orbit_Radius) *
+        math.cos((math.pi / 2) * (Finally_Orbit_Inclination - Start_Orbit_Inclination)) +
+        (Start_Orbit_Radius / Finnaly_Orbit_Radius)
+    )
+    Gas_Mass = Start_SC_Mass * (
+            1 - math.exp((-Delta_velocity) / Gas_Flow_Speed)
+    )
+    Engines_Thrust = (Gas_Flow_Speed * Gas_Mass) / Fly_Time
+    Engines_Power = (Engines_Thrust * Gas_Flow_Speed) / (2 * EFFICIENCY)
+    Construct_Mass = Realitive_Construct_Mass * Start_SC_Mass
+    Engines_Mass = Engine_Specific_Mass * Engines_Thrust
+    Electro_Mass = Electro_Specific_Mass * Engines_Power
+    SSS_Mass = SSS_Realitive_Mass * Gas_Mass
+    Payload_Mass = (Start_SC_Mass
+                         - Gas_Mass
+                         - Construct_Mass
+                         - SSS_Mass
+                         - Engines_Mass
+                         - Electro_Mass)
+    foo = Gas_Mass / (3 * math.pi)
+    Tank_Radius = 100 * round(pow(foo, 1 / 3))
+    Tank_CTR = round(Tank_Radius * 1.5)
+    Body_lenght = round(500 * pow(Construct_Mass, 1 / 3))
+    SP_Square = 0.5 * Engines_Power / (1.3 * 0.29 * 0.866)
+    Payload_R = round(math.sqrt(Payload_Mass / (0.02 * 1.5 * math.pi)))
+    EnginesCount = round(Engines_Thrust)
 
-        self.theor_calc()
-
-        self.Initial_Speed = round(self.Initial_Speed, 3)
-        self.Gas_Flow_Speed = round(self.Gas_Flow_Speed, 3)
-        self.Electro_Mass = round(self.Electro_Mass, 3)
-        self.Payload_Mass = round(self.Payload_Mass, 3)
-        self.SSS_Mass = round(self.SSS_Mass, 3)
-        self.Engines_Mass = round(self.Engines_Mass, 3)
-        self.Construct_Mass = round(self.Construct_Mass, 3)
-        self.Engines_Power = round(self.Engines_Power)
-        self.Gas_Mass = round(self.Gas_Mass)
-        self.Engines_Thrust = round(1000 * self.Engines_Thrust / 9.81, 3)
-        self.Delta_velocity = round(self.Delta_velocity)
-
-        application.ui.lineEdit_3.setText(str(self.EFFICIENCY * 100))
-        application.ui.lineEdit_8.setText(str(self.Gas_Flow_Speed))
-        application.ui.lineEdit_18.setText(str(self.Electro_Mass))
-        application.ui.lineEdit_22.setText(str(self.Payload_Mass))
-        application.ui.lineEdit_21.setText(str(self.SSS_Mass))
-        application.ui.lineEdit_19.setText(str(self.Engines_Mass))
-        application.ui.lineEdit_20.setText(str(self.Construct_Mass))
-        application.ui.lineEdit_17.setText(str(self.Engines_Power / 1000))
-        application.ui.lineEdit_16.setText(str(self.Engines_Thrust))
-        application.ui.lineEdit_15.setText(str(self.Gas_Mass))
-        application.ui.lineEdit_14.setText(str(self.Delta_velocity / 1000))
-        application.ui.lineEdit_13.setText(str(self.Initial_Speed / 1000))
-
-
-calcCore = calculations()
+    res = dict()
+    res['Initial_Speed'] = Initial_Speed
+    res['Gas_Flow_Speed'] = Gas_Flow_Speed
+    res['Electro_Mass'] = Electro_Mass
+    res['Payload_Mass'] = Payload_Mass
+    res['SSS_Mass'] = SSS_Mass
+    res['Engines_Mass'] = Engines_Mass
+    res['Construct_Mass'] = Construct_Mass
+    res['Engines_Power'] = Engines_Power
+    res['Gas_Mass'] = Gas_Mass
+    res['Engines_Thrust'] = Engines_Thrust
+    res['Delta_velocity'] = Delta_velocity
+    res['EFFICIENCY'] = EFFICIENCY
+    return res
 
 
 class mywindow(QtWidgets.QMainWindow):
@@ -93,7 +75,7 @@ class mywindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.tableView.setModel(model)
-        self.ui.pushButton.clicked.connect(calcCore.calc_master)
+        self.ui.pushButton.clicked.connect(self.calc)
         self.ui.pushButton_2.clicked.connect(self.MSG)
 
     def MSG(self):
@@ -101,6 +83,56 @@ class mywindow(QtWidgets.QMainWindow):
         messg.setWindowTitle("О Программе")
         messg.setText("Хайруллин И.И.")
         x = messg.exec_()
+
+    def read_data_field(self):
+        Fly_Time = float(self.ui.lineEdit.text()) * 86400
+        Start_Orbit_Height = float(self.ui.lineEdit_4.text())
+        Start_Orbit_Inclination = float(self.ui.lineEdit_6.text()) * math.pi / 180
+        Finally_Orbit_Height = float(self.ui.lineEdit_5.text())
+        Finally_Orbit_Inclination = float(self.ui.lineEdit_7.text()) * math.pi / 180
+        Start_SC_Mass = float(self.ui.lineEdit_2.text())
+        Realitive_Construct_Mass = float(self.ui.lineEdit_12.text())
+        SSS_Realitive_Mass = float(self.ui.lineEdit_11.text())
+        Gas_Flow_Speed = float(self.ui.lineEdit_8.text())
+        Engine_Specific_Mass = float(self.ui.lineEdit_9.text())
+        Electro_Specific_Mass = float(self.ui.lineEdit_10.text())
+        EFFICIENCY = float(self.ui.lineEdit_3.text())
+        EFFICIENCY *= 0.01
+
+        res = dict()
+
+        res['Fly_Time'] = Fly_Time
+        res['Start_Orbit_Height'] = Start_Orbit_Height
+        res['Start_Orbit_Inclination'] = Start_Orbit_Inclination
+        res['Finally_Orbit_Height'] = Finally_Orbit_Height
+        res['Finally_Orbit_Inclination'] = Finally_Orbit_Inclination
+        res['Start_SC_Mass'] = Start_SC_Mass
+        res['Realitive_Construct_Mass'] = Realitive_Construct_Mass
+        res['SSS_Realitive_Mass'] = SSS_Realitive_Mass
+        res['Gas_Flow_Speed'] = Gas_Flow_Speed
+        res['Engine_Specific_Mass'] = Engine_Specific_Mass
+        res['Electro_Specific_Mass'] = Electro_Specific_Mass
+        res['EFFICIENCY'] = EFFICIENCY
+        return res
+
+    def outres(self, res):
+        self.ui.lineEdit_3.setText(str(res['EFFICIENCY'] * 100))
+        self.ui.lineEdit_8.setText(str(round(res['Gas_Flow_Speed'], 3)))
+        self.ui.lineEdit_18.setText(str(round(res['Electro_Mass'], 3)))
+        self.ui.lineEdit_22.setText(str(round(res['Payload_Mass'], 3)))
+        self.ui.lineEdit_21.setText(str(round(res['SSS_Mass'], 3)))
+        self.ui.lineEdit_19.setText(str(round(res['Engines_Mass'], 3)))
+        self.ui.lineEdit_20.setText(str(round(res['Construct_Mass'], 3)))
+        self.ui.lineEdit_17.setText(str(round(res['Engines_Power']) / 1000))
+        self.ui.lineEdit_16.setText(str(round(1000 * res['Engines_Thrust'] / 9.81, 3)))
+        self.ui.lineEdit_15.setText(str(round(res['Gas_Mass'])))
+        self.ui.lineEdit_14.setText(str(round(res['Delta_velocity']) / 1000))
+        self.ui.lineEdit_13.setText(str(round(res['Initial_Speed'], 3) / 1000))
+
+    def calc(self):
+        par = self.read_data_field()
+        res = theor_calc(par)
+        self.outres(res)
 
 
 def main():
